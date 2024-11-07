@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SafePass - Gestor de Contraseñas</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background-color: #f0f2f5;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background-color: #1a73e8;
+            color: white;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        nav {
+            background-color: #fff;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        nav a {
+            color: #1a73e8;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            margin: 0 0.5rem;
+        }
+
+        .section {
+            background-color: white;
+            padding: 2rem;
+            margin: 1rem 0;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+
+        input {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+        }
+
+        button {
+            background-color: #1a73e8;
+            color: white;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #1557b0;
+        }
+
+        .password-list {
+            list-style: none;
+        }
+
+        .password-item {
+            padding: 1rem;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .generated-password {
+            font-size: 1.2rem;
+            padding: 1rem;
+            background-color: #e8f0fe;
+            border-radius: 4px;
+            margin: 1rem 0;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>SafePass</h1>
+        <p>Tu gestor de contraseñas seguro</p>
+    </header>
+
+    <div class="container">
+        <nav>
+            <a href="#" onclick="showSection('home')">Inicio</a>
+            <a href="#" onclick="showSection('login')">Iniciar Sesión</a>
+            <a href="#" onclick="showSection('register')">Registro</a>
+            <a href="#" onclick="showSection('passwords')" id="passwordsLink" style="display: none;">Mis Contraseñas</a>
+        </nav>
+
+        <!-- Sección de Inicio -->
+        <section id="home" class="section active">
+            <h2>Bienvenido a SafePass</h2>
+            <p>Gestiona tus contraseñas de forma segura y simple.</p>
+            <ul>
+                <li>Almacena tus contraseñas de forma segura</li>
+                <li>Genera contraseñas fuertes</li>
+                <li>Accede desde cualquier dispositivo</li>
+            </ul>
+        </section>
+
+        <!-- Sección de Login -->
+        <section id="login" class="section">
+            <h2>Iniciar Sesión</h2>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="loginEmail">Correo electrónico:</label>
+                    <input type="email" id="loginEmail" required>
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">Contraseña:</label>
+                    <input type="password" id="loginPassword" required>
+                </div>
+                <button type="button" onclick="handleLogin()">Iniciar Sesión</button>
+            </form>
+        </section>
+
+        <!-- Sección de Registro -->
+        <section id="register" class="section">
+            <h2>Registro</h2>
+            <form id="registerForm">
+                <div class="form-group">
+                    <label for="registerName">Nombre completo:</label>
+                    <input type="text" id="registerName" required>
+                </div>
+                <div class="form-group">
+                    <label for="registerEmail">Correo electrónico:</label>
+                    <input type="email" id="registerEmail" required>
+                </div>
+                <div class="form-group">
+                    <label for="registerPassword">Contraseña:</label>
+                    <input type="password" id="registerPassword" required>
+                </div>
+                <div class="form-group">
+                    <label for="confirmPassword">Confirmar contraseña:</label>
+                    <input type="password" id="confirmPassword" required>
+                </div>
+                <button type="button" onclick="handleRegister()">Registrarse</button>
+            </form>
+        </section>
+
+        <!-- Sección de Contraseñas -->
+        <section id="passwords" class="section">
+            <h2>Mis Contraseñas</h2>
+            
+            <!-- Generador de contraseñas -->
+            <div class="password-generator">
+                <h3>Generar nueva contraseña</h3>
+                <div class="form-group">
+                    <label for="passwordLength">Longitud:</label>
+                    <input type="number" id="passwordLength" value="12" min="8" max="32">
+                </div>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="includeNumbers" checked> Incluir números
+                    </label>
+                    <label>
+                        <input type="checkbox" id="includeSymbols" checked> Incluir símbolos
+                    </label>
+                </div>
+                <button onclick="generatePassword()">Generar Contraseña</button>
+                <div id="generatedPassword" class="generated-password"></div>
+            </div>
+
+            <!-- Lista de contraseñas guardadas -->
+            <div class="saved-passwords">
+                <h3>Contraseñas guardadas</h3>
+                <form id="savePasswordForm">
+                    <div class="form-group">
+                        <label for="siteName">Sitio web:</label>
+                        <input type="text" id="siteName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="username">Usuario:</label>
+                        <input type="text" id="username" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Contraseña:</label>
+                        <input type="password" id="password" required>
+                    </div>
+                    <button type="button" onclick="savePassword()">Guardar Contraseña</button>
+                </form>
+                <ul id="passwordList" class="password-list">
+                    <!-- Las contraseñas guardadas se mostrarán aquí -->
+                </ul>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // Función para mostrar/ocultar secciones
+        function showSection(sectionId) {
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.getElementById(sectionId).classList.add('active');
+        }
+
+        // Función para manejar el inicio de sesión
+        function handleLogin() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            // Aquí iría la lógica de autenticación
+            // Por ahora, solo mostraremos el enlace a contraseñas
+            document.getElementById('passwordsLink').style.display = 'inline';
+            showSection('passwords');
+        }
+
+        // Función para manejar el registro
+        function handleRegister() {
+            const name = document.getElementById('registerName').value;
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            if (password !== confirmPassword) {
+                alert('Las contraseñas no coinciden');
+                return;
+            }
+
+            // Aquí iría la lógica de registro
+            alert('Registro exitoso');
+            showSection('login');
+        }
+
+        // Función para generar contraseñas aleatorias
+        function generatePassword() {
+            const length = document.getElementById('passwordLength').value;
+            const includeNumbers = document.getElementById('includeNumbers').checked;
+            const includeSymbols = document.getElementById('includeSymbols').checked;
+
+            let chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            if (includeNumbers) chars += '0123456789';
+            if (includeSymbols) chars += '!@#$%^&*()_+-=[]{}|;:,.<>?';
+
+            let password = '';
+            for (let i = 0; i < length; i++) {
+                password += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+
+            document.getElementById('generatedPassword').textContent = password;
+        }
+
+        // Función para guardar contraseñas
+        function savePassword() {
+            const siteName = document.getElementById('siteName').value;
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            const passwordList = document.getElementById('passwordList');
+            const listItem = document.createElement('li');
+            listItem.className = 'password-item';
+            listItem.innerHTML = `
+                <strong>${siteName}</strong><br>
+                Usuario: ${username}<br>
+                Contraseña: ******
+                <button onclick="this.parentElement.remove()">Eliminar</button>
+            `;
+
+            passwordList.appendChild(listItem);
+
+            // Limpiar el formulario
+            document.getElementById('savePasswordForm').reset();
+        }
+    </script>
+</body>
+</html>
